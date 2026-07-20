@@ -1,11 +1,11 @@
-# Sweat & Stats v2.2.1
+# Sweat & Stats v2.2.2
 
-Patch release for the v2.2 Library, Workflow, and Exercise Import update.
+Equipment Type growth patch.
 
-## Fixes
-- Adds Squat as a valid movement pattern.
-- Shows clear Ready, Duplicate, Validation Error, and Skipped import statuses.
-- Detects duplicates independently from other validation errors.
-- Replaces prompt-based import editing with a structured review form.
-- Selecting Equipment Type = Other now allows a new custom Equipment Name.
-- Adds an option to save custom equipment names for future use.
+## Changes
+- Selecting **Other** now opens a **New Equipment Type** field.
+- The new type is saved as the exercise's actual Equipment Type rather than leaving it categorized as Other.
+- New Equipment Types can be saved for reuse across Quick Add, Edit Exercise, Exercise Import, and Library filters.
+- Equipment Name remains a separate field.
+- Existing type names are matched case-insensitively to reduce duplicates.
+- Custom equipment types and names remain stored locally with the rest of the app data.
