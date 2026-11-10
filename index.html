@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#211a1c">
+<meta name="theme-color" content="#FBE3E8">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="64x64" href="icon-64.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -27,6 +27,56 @@ textarea.import{width:100%;min-height:150px;border:1px solid var(--border);borde
 .plan-item,.lib-item{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:.74rem;background:var(--yellow);color:#78350f;font-weight:700}.library-meta{line-height:1.45}.notice{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:10px;margin:8px 0;color:#78350f}.toolbar{display:grid;grid-template-columns:2fr 1fr 1fr;gap:7px}.empty{padding:24px;text-align:center;color:var(--muted)}.start-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.start-option{text-align:left;min-height:132px;padding:16px;border:1px solid var(--border);background:var(--card);box-shadow:0 2px 10px rgba(0,0,0,.04)}.start-option .option-icon{font-size:1.7rem;display:block;margin-bottom:10px}.start-option .option-title{display:block;font-size:1.02rem;font-weight:850;margin-bottom:5px}.start-option .option-copy{display:block;color:var(--muted);font-size:.82rem;font-weight:600;line-height:1.35}.workout-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}.compact-link{padding:7px 9px;font-size:.78rem}.paste-help{margin:6px 0 10px;line-height:1.4}.mood-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.mood-btn{background:#f4eff0;border:2px solid transparent;padding:10px 5px;font-size:.78rem}.mood-btn.selected{border-color:var(--accent);background:var(--soft);color:#70404a}.summary-stat{background:#fcf9fa;border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center}.summary-stat strong{display:block;font-size:1.18rem}.import-preview{max-height:50vh;overflow:auto}.preview-row{border:1px solid var(--border);border-radius:13px;padding:10px;margin:8px 0;background:#fff}.error-text{color:var(--red);font-size:.8rem;font-weight:700}.success-text{color:var(--green);font-size:.8rem;font-weight:700}.status-pill{display:inline-block;margin-top:7px;padding:4px 8px;border-radius:999px;font-size:.75rem;font-weight:800}.status-ready{background:#dcfce7;color:#166534}.status-duplicate{background:#fef3c7;color:#92400e}.status-error{background:#fee2e2;color:#991b1b}.status-skipped{background:#f3f4f6;color:#4b5563}.check-row{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:.82rem;font-weight:700;color:var(--muted)}.check-row input{width:auto}
 .auth-gate{position:fixed;inset:0;z-index:100;background:linear-gradient(180deg,#211a1c,#3b2a2e);display:flex;align-items:center;justify-content:center;padding:20px}.auth-card{width:min(100%,430px);background:#fff;border-radius:22px;padding:22px;box-shadow:0 30px 90px rgba(0,0,0,.35)}.auth-card h1{font-size:1.8rem}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}.auth-message{min-height:22px;margin:8px 0;font-size:.84rem;font-weight:700}.cloud-status{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;color:var(--muted);margin-top:4px}.cloud-dot{width:8px;height:8px;border-radius:50%;background:#d97706}.cloud-dot.online{background:#2f855a}.cloud-dot.error{background:#c53030}.account-row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.auth-field{margin-top:9px}.loading-screen{position:fixed;inset:0;z-index:101;background:#faf7f8;display:flex;align-items:center;justify-content:center;font-weight:800;color:#70404a}
 @media(max-width:560px){.mood-grid{grid-template-columns:1fr 1fr}.mood-grid .mood-btn:last-child{grid-column:1/-1}.start-grid{grid-template-columns:1fr}.start-option{min-height:108px}.timer{align-items:flex-start;flex-direction:column}.grid4,.grid3{grid-template-columns:1fr 1fr}.toolbar{grid-template-columns:1fr 1fr}.toolbar .search{grid-column:1/-1}nav button{font-size:.74rem}.lib-item{grid-template-columns:1fr}.lib-item>.actions{justify-content:flex-start}}
+/* Bouquet palette and navigation. Workout controls keep their existing roles. */
+:root {
+  --bg:#FBE3E8; --card:#FFFCF6; --ink:#442331; --muted:#6D4C59;
+  --accent:#AA1967; --soft:#F3CDD6; --border:#E9C4CF;
+  --wine:#621D3D; --heading-berry:#791748; --plum:#EFE3EB;
+  --nav-height:58px;
+}
+.app { padding-bottom:calc(126px + env(safe-area-inset-bottom)); }
+header { background:var(--bg); }
+.primary { color:var(--card); }
+.secondary,.ghost { background:var(--soft); color:var(--wine); }
+.field,.summary-stat { background:#FFF5F7; }
+.timer { background:var(--wine); color:var(--card); }
+.chip.primary-chip { background:var(--plum); color:var(--wine); }
+.bottom { bottom:calc(var(--nav-height) + env(safe-area-inset-bottom)); padding-bottom:9px; background:var(--card); }
+.app-nav {
+  position:fixed; left:0; right:0; bottom:0; z-index:30; margin:0;
+  height:calc(var(--nav-height) + env(safe-area-inset-bottom));
+  padding:5px max(6px,env(safe-area-inset-right)) calc(5px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));
+  grid-template-columns:repeat(6,minmax(0,1fr)); gap:2px;
+  background:var(--card); border-top:1px solid var(--border);
+}
+.app-nav button { display:grid; place-content:center; justify-items:center; gap:2px; padding:2px 0; font-size:.72rem; }
+.app-nav .ghost { background:transparent; color:var(--muted); }
+.app-nav svg { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.home-dashboard { display:grid; gap:10px; padding-top:8px; }
+.home-welcome,.home-tip {
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(78px,32%); align-items:center;
+  border:1px solid var(--border); border-radius:16px; overflow:hidden;
+}
+.home-welcome { min-height:114px; background:var(--soft); isolation:isolate; }
+.home-tip { grid-template-columns:minmax(0,1fr) minmax(60px,24%); background:var(--plum); }
+.home-card-copy { padding:12px 0 12px 13px; }
+.home-label { margin:0; color:var(--wine); text-transform:uppercase; letter-spacing:.065em; font-size:.75rem; font-weight:800; }
+.home-greeting,.home-workout-title { margin:3px 0 4px; color:var(--heading-berry); font-size:1.25rem; line-height:1.2; }
+.home-greeting { font-size:clamp(1.35rem,5.5vw,1.7rem); overflow-wrap:anywhere; }
+.home-tip p { margin:4px 0 0; color:var(--wine); font-size:.9rem; line-height:1.4; font-weight:650; }
+.home-mascot {
+  display:block; width:100%; max-width:116px; height:auto; align-self:end; justify-self:end;
+  mask-image:linear-gradient(to right,transparent,#000 19%,#000 81%,transparent),
+    linear-gradient(to bottom,transparent,#000 12%,#000 70%,transparent);
+  mask-composite:intersect;
+}
+.home-welcome .home-mascot { mix-blend-mode:multiply; }
+.home-tip .home-mascot { max-width:74px; }
+.home-workout { margin:0; }
+.home-progress { display:block; width:100%; height:7px; margin:8px 0 7px; accent-color:var(--accent); }
+.home-exercises { margin:0 0 10px; padding:0; list-style:none; }
+.home-exercises li { display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); font-size:.84rem; overflow-wrap:anywhere; }
+.home-exercise-status { color:var(--wine); flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -46,19 +96,46 @@ textarea.import{width:100%;min-height:150px;border:1px solid var(--border);borde
 </div>
 <div class="app hidden" id="mainApp">
 <header>
-  <h1>Sweat &amp; Stats <span class="badge">v2.3.2</span></h1>
+  <h1>Sweat &amp; Stats <span class="badge">v2.4.0</span></h1>
   <div class="muted small">Build, suggest, paste, or repeat a workout. Every rep counts.</div>
   <div class="cloud-status"><span id="cloudDot" class="cloud-dot"></span><span id="cloudStatus">Connecting…</span></div>
-  <nav>
-    <button class="primary tabBtn" data-tab="today">Today</button>
-    <button class="ghost tabBtn" data-tab="plans">Plans</button>
-    <button class="ghost tabBtn" data-tab="library">Library</button>
-    <button class="ghost tabBtn" data-tab="history">History</button>
-    <button class="ghost tabBtn" data-tab="random">Suggest</button>
-  </nav>
 </header>
+<nav class="app-nav" aria-label="Main navigation">
+  <button class="primary tabBtn" data-tab="home" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10h-6v-6H9v6H3z"/></svg>Home</button>
+  <button class="ghost tabBtn" data-tab="today"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8v8m3-11v14m10-14v14m3-11v8M7 12h10M2 12h2m16 0h2"/></svg>Today</button>
+  <button class="ghost tabBtn" data-tab="plans"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Plans</button>
+  <button class="ghost tabBtn" data-tab="library"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v14m0-14C8 3 5 3 2 4v15c4-1 7-1 10 1 3-2 6-2 10-1V4c-3-1-6-1-10 2Z"/></svg>Library</button>
+  <button class="ghost tabBtn" data-tab="history"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10a9 9 0 1 1 1 7M3 4v6h6m3-3v5l3 2"/></svg>History</button>
+  <button class="ghost tabBtn" data-tab="random"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Zm7 12v6m-3-3h6"/></svg>Suggest</button>
+</nav>
 
-<section id="today" class="tab">
+<section id="home" class="tab home-dashboard" aria-label="Home dashboard">
+  <div class="home-welcome">
+    <div class="home-card-copy">
+      <p class="home-label">Welcome back</p>
+      <h2 class="home-greeting" id="homeGreeting">Hey there!</h2>
+      <div>Every rep counts.</div>
+    </div>
+    <img class="home-mascot" src="cova-flex.png" width="185" height="205" alt="Cova flexing an arm">
+  </div>
+  <div class="card home-workout">
+    <p class="home-label">Today’s workout</p>
+    <h2 class="home-workout-title" id="homeWorkoutTitle">Ready to get moving?</h2>
+    <div class="muted small" id="homeWorkoutStatus"></div>
+    <progress class="home-progress hidden" id="homeWorkoutProgress" aria-label="Exercises completed"></progress>
+    <ul class="home-exercises hidden" id="homeWorkoutExercises"></ul>
+    <button id="homeWorkoutBtn" class="primary full" type="button">Start Workout</button>
+  </div>
+  <div class="home-tip">
+    <div class="home-card-copy">
+      <h2 class="home-label">Tip of the Day</h2>
+      <p id="homeTip"></p>
+    </div>
+    <img class="home-mascot" src="cova-point.png" width="195" height="280" alt="Cova pointing up">
+  </div>
+</section>
+
+<section id="today" class="tab hidden">
   <div id="workoutStartPanel">
     <div class="section-title">Start a workout</div>
     <div class="start-grid">
@@ -109,9 +186,8 @@ textarea.import{width:100%;min-height:150px;border:1px solid var(--border);borde
   <div class="card"><div class="grid2"><div class="field"><label>Workout focus</label><select id="randomType"><option>Upper Body</option><option>Lower Body</option><option>Core</option><option>Cardio</option><option>Full Body</option></select></div><div class="field"><label>Size</label><select id="randomCount"><option value="4">Small · 4</option><option value="6" selected>Medium · 6</option><option value="8">Large · 8</option></select></div></div><button id="randomizeBtn" class="primary full" style="margin-top:9px">Create Suggested Workout</button></div>
   <div id="randomPreview"></div>
 </section>
+<div class="bottom hidden" id="bottomBar"><button id="copyBtn" class="primary">Copy Summary</button><button id="saveBtn" class="secondary">Save Workout</button></div>
 </div>
-
-<div class="bottom" id="bottomBar"><button id="copyBtn" class="primary">Copy Summary</button><button id="saveBtn" class="secondary">Save Workout</button></div>
 
 
 <dialog id="historyDetailDialog"><div class="modal"><div class="row"><h2 id="historyDetailTitle">Workout</h2><button onclick="historyDetailDialog.close()" class="ghost">Close</button></div><div id="historyDetailBody"></div><div class="actions" style="margin-top:12px"><button id="copyHistoryBtn" class="primary">Copy Summary</button><button id="editHistoryBtn" class="secondary">Edit Notes</button><button id="deleteHistoryBtn" class="danger">Delete</button></div></div></dialog>
@@ -159,7 +235,7 @@ async function initializeUserCloud(user){currentUser=user;setCloudStatus("Loadin
     if(hasMeaningfulLocalData()){let move=confirm("We found existing Sweat & Stats data on this device. Import it into your private cloud account?");if(move)await ref.set(localSnapshot(),{merge:true});else await ref.set({createdAt:new Date().toISOString(),schemaVersion:VERSION},{merge:true})}else await ref.set(localSnapshot(),{merge:true});
     cloudReady=true;setCloudStatus("Cloud connected","online");renderAllAfterAuth();
   }catch(e){console.error(e);setCloudStatus("Cloud connection failed","error");alert("Firebase connected, but cloud data could not load. Check that the Firestore security rules were published.");renderAllAfterAuth()}}
-function renderAllAfterAuth(){$("loadingScreen").classList.add("hidden");$("authGate").classList.add("hidden");$("mainApp").classList.remove("hidden");renderToday();renderLibrary();renderPlans();renderHistory()}
+function renderAllAfterAuth(){$("loadingScreen").classList.add("hidden");$("authGate").classList.add("hidden");$("mainApp").classList.remove("hidden");renderToday();renderLibrary();renderPlans();renderHistory();renderHome()}
 function showAuthMode(mode){authMode=mode;let creating=mode==="create";$('authNameField').classList.toggle('hidden',!creating);$('authSubmitBtn').textContent=creating?'Create Account':'Sign In';$('showSignInBtn').className=creating?'ghost':'primary';$('showCreateBtn').className=creating?'primary':'ghost';$('forgotPasswordBtn').classList.toggle('hidden',creating);$('authPassword').setAttribute('autocomplete',creating?'new-password':'current-password');$('authMessage').textContent=''}
 function friendlyAuthError(e){let c=e?.code||'';if(c.includes('email-already-in-use'))return 'An account already exists for this email.';if(c.includes('invalid-credential')||c.includes('wrong-password')||c.includes('user-not-found'))return 'The email or password is incorrect.';if(c.includes('weak-password'))return 'Use a password with at least 6 characters.';if(c.includes('invalid-email'))return 'Enter a valid email address.';if(c.includes('unauthorized-domain'))return 'This GitHub Pages address must be added to Firebase Authorized domains.';return e?.message||'Something went wrong.'}
 async function submitAuth(){let email=$('authEmail').value.trim(),password=$('authPassword').value;$('authMessage').textContent='Working…';try{if(authMode==='create'){let cred=await auth.createUserWithEmailAndPassword(email,password),name=$('authName').value.trim();if(name){await cred.user.updateProfile({displayName:name});localStorage.setItem('sw2_profile_name',name)}}else await auth.signInWithEmailAndPassword(email,password)}catch(e){$('authMessage').textContent=friendlyAuthError(e);$('authMessage').className='auth-message error-text'}}
@@ -332,7 +408,98 @@ let activeHistoryId=null;window.openHistory=id=>{let w=getHistory().find(x=>x.id
 window.showExerciseHistory=id=>{let ex=library.find(x=>x.id===id);if(!ex)return;let rows=getHistory().flatMap(w=>(w.exercises||[]).filter(x=>x.name===ex.name).map(x=>({w,x}))).sort((a,b)=>new Date(b.w.date)-new Date(a.w.date));let weights=rows.flatMap(r=>(r.x.sets||[]).map(s=>Number(s.weight)||0));$("exerciseHistoryTitle").textContent=ex.name;$("exerciseHistoryBody").innerHTML=`<div class="grid3"><div class="summary-stat"><strong>${rows.length}</strong><span class="small muted">Times Performed</span></div><div class="summary-stat"><strong>${weights.length?Math.max(...weights):0}</strong><span class="small muted">Best Weight</span></div><div class="summary-stat"><strong>${rows[0]?new Date(rows[0].w.date).toLocaleDateString():'—'}</strong><span class="small muted">Last Performed</span></div></div>`+rows.slice(0,12).map(r=>`<div class="card"><strong>${new Date(r.w.date).toLocaleDateString()}</strong><div class="muted small">${setSummary(r.x)}</div>${r.x.effort?`<div>Effort: ${r.x.effort}</div>`:''}${r.x.note?`<div>Note: ${r.x.note}</div>`:''}</div>`).join('')+(rows.length?'':"<div class='empty'>No history for this exercise yet.</div>");exerciseHistoryDialog.showModal()}
 function rememberMuscle(group,type){if(!group||!type)return;if(!MUSCLE_TYPES[group]){MASTER_DATA.muscleGroups.push(group);MUSCLE_TYPES[group]=[]}if(!MUSCLE_TYPES[group].some(x=>x.toLowerCase()===type.toLowerCase()))MUSCLE_TYPES[group].push(type);localStorage.setItem('sw2_custom_muscles',JSON.stringify(MUSCLE_TYPES));queueCloudSync()}
 
-function switchTab(id){if(id==="history")renderHistory();document.querySelectorAll(".tab").forEach(x=>x.classList.add("hidden"));$(id).classList.remove("hidden");document.querySelectorAll(".tabBtn").forEach(b=>{b.className="ghost tabBtn";if(b.dataset.tab===id)b.className="primary tabBtn"});$("bottomBar").classList.toggle("hidden",id!=="today"||!exercises.length)}
+// Append new batches here to extend the rotation without changing workout data.
+const DAILY_TIPS=[
+  "On face pulls, let the cable return slowly so you control each rep.",
+  "On the StairMaster, log your speed and floors together. That gives you a better comparison the next time you do five minutes.",
+  "For rotary torso, log left and right separately so you can see how each side did.",
+  "Before your first working set, do a few easy reps to get a feel for the movement.",
+  "On dumbbell curls, keep your elbows close and lower the weights under control.",
+  "If your reps vary from set to set, log each number. The set-by-set numbers tell you more than an average.",
+  "On the leg press, keep your feet planted and lower only as far as you can without your hips lifting off the seat.",
+  "Doing face pulls and triceps pushdowns in tandem? Add a quick note so you remember why your rest was shorter.",
+  "If your inner thighs are still sore from adductors, see how they feel during a light warm-up set before picking today’s weight.",
+  "On vertical knee raises, pause briefly at the bottom if you catch yourself swinging.",
+  "Switching between one arm at a time and both together? Use Side / Style so the next workout brings back the right setup.",
+  "On seated rows, keep your torso steady as you pull, then let your arms reach forward under control.",
+  "If the first hamstring curl set is heavier and you drop the weight after, log both loads. That’s useful information for next time.",
+  "Short workout window? Start with the exercises you most want to get done.",
+  "On donkey kicks, keep your hips facing forward and stop the rep before your lower back starts doing the work.",
+  "If the app fills in your last sets, use them as a reference. Adjust the reps or weight based on how today’s warm-up feels.",
+  "On cable external rotations, keep your elbow close to your side and make the turn slow and steady.",
+  "When you switch between forward and side steps on the StairMaster, jot down the order so you can repeat the interval you liked.",
+  "On hip abductors, control the pads on the way back in as well as on the way out.",
+  "If your left and right sides get different reps, give each side its own line. That makes it easy to spot changes over time.",
+  "On triceps pushdowns, keep your upper arms steady and let your elbows do the bending and straightening.",
+  "Mark each exercise complete as you finish it. When you’re ready to save, the summary will already reflect what you did.",
+  "Before leg extensions, line your knees up with the machine’s pivot and adjust the pad so it sits just above your ankles.",
+  "If a set feels harder than usual at the same weight, mark the effort. Next time, you’ll have more context than the number alone.",
+  "On overhead dumbbell triceps extensions, keep your ribs stacked over your hips as you lower the dumbbell behind your head.",
+  "Need a longer break before your next set? Take it. It’s easier to compare sets when you can give each one a steady effort.",
+  "On lat pulldowns, bring your elbows down toward your sides and let the bar rise without letting it pull you out of position.",
+  "If you find yourself rebuilding the same workout, save it as a favorite plan so it’s ready to load next time.",
+  "Keep your overall note short and specific. ‘Low energy, longer rests’ gives future you something to work with.",
+  "Before saving, check that your weights and side labels match what you did. Then hit Copy Summary if you want a copy for your own notes.",
+];
+const FIRST_TIP_DAY=Date.UTC(2026,10,10);
+let tipTimer;
+function dailyTip(date){
+  // Convert the local calendar date to a day index so daylight saving time cannot skip a tip.
+  const day=Date.UTC(date.getFullYear(),date.getMonth(),date.getDate());
+  const daysElapsed=Math.max(0,(day-FIRST_TIP_DAY)/86400000);
+  return DAILY_TIPS[daysElapsed%DAILY_TIPS.length];
+}
+function updateHomeTip(){
+  const now=new Date();
+  $("homeTip").textContent=dailyTip(now);
+  const nextDay=new Date(now);
+  nextDay.setHours(24,0,0,0);
+  clearTimeout(tipTimer);
+  tipTimer=setTimeout(updateHomeTip,nextDay-now);
+}
+function renderHome(){
+  const name=(currentUser?.displayName||localStorage.getItem("sw2_profile_name")||"").trim().split(/\s+/)[0];
+  $("homeGreeting").textContent=name?`Hey, ${name}!`:"Hey there!";
+  const total=exercises.length;
+  const complete=exercises.filter(ex=>ex.done).length;
+  const active=manualWorkout||total>0;
+  $("homeWorkoutTitle").textContent=active?"Workout in progress":"Ready to get moving?";
+  $("homeWorkoutStatus").textContent=total?`${complete} of ${total} exercises complete`:
+    (active?"Your blank workout is ready.":"Build, suggest, paste, or repeat a workout.");
+  $("homeWorkoutBtn").textContent=active?"Continue Workout":"Start Workout";
+  const progress=$("homeWorkoutProgress");
+  progress.max=total||1;
+  progress.value=complete;
+  progress.classList.toggle("hidden",!total);
+  const list=$("homeWorkoutExercises");
+  list.replaceChildren();
+  list.classList.toggle("hidden",!total);
+  for(const exercise of exercises.slice(0,3)){
+    const row=document.createElement("li");
+    const label=document.createElement("span");
+    label.textContent=exercise.name;
+    const status=document.createElement("span");
+    status.className="home-exercise-status";
+    status.textContent=exercise.done?"Complete":"To do";
+    row.append(label,status);
+    list.append(row);
+  }
+  updateHomeTip();
+}
+function switchTab(id){
+  if(id==="history")renderHistory();
+  if(id==="home")renderHome();
+  document.querySelectorAll(".tab").forEach(tab=>tab.classList.toggle("hidden",tab.id!==id));
+  document.querySelectorAll(".tabBtn").forEach(button=>{
+    const active=button.dataset.tab===id;
+    button.className=active?"primary tabBtn":"ghost tabBtn";
+    if(active)button.setAttribute("aria-current","page");
+    else button.removeAttribute("aria-current");
+  });
+  $("bottomBar").classList.toggle("hidden",id!=="today"||!exercises.length);
+}
+$("homeWorkoutBtn").onclick=()=>switchTab("today");
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!$("home").classList.contains("hidden"))updateHomeTip()});
 document.querySelectorAll(".tabBtn").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));$("buildOwnBtn").onclick=buildMyOwn;$("suggestWorkoutBtn").onclick=()=>switchTab("random");$("pasteWorkoutBtn").onclick=openPasteWorkout;$("repeatWorkoutBtn").onclick=repeatPreviousWorkout;$("changeWorkoutBtn").onclick=()=>{if(confirm("Clear this workout and choose another way to start?")){exercises=[];resetWorkoutState();persist();renderToday()}};$("cancelPasteBtn").onclick=()=>pasteWorkoutDialog.close();$("loadPasteBtn").onclick=()=>parsePlan($("quickPasteInput").value);$("startBtn").onclick=startTimer;$("pauseBtn").onclick=pauseTimer;$("finishBtn").onclick=finishTimer;$("addFromLibraryBtn").onclick=()=>{fillAddSelect();addDialog.showModal()};$("confirmAddBtn").onclick=()=>{addNamed($("addSelect").value);addDialog.close()};$("librarySearch").oninput=renderLibrary;$("groupFilter").onchange=renderLibrary;$("equipmentFilter").onchange=renderLibrary;$("librarySort").onchange=renderLibrary;$("quickAddBtn").onclick=()=>openExercise();$("importExercisesBtn").onclick=()=>{$("exerciseImportText").value="";exerciseImportDialog.showModal()};$("cancelExerciseImportBtn").onclick=()=>exerciseImportDialog.close();$("previewExerciseImportBtn").onclick=previewExerciseImport;$("backExerciseImportBtn").onclick=()=>{exerciseImportPreviewDialog.close();exerciseImportDialog.showModal()};$("saveExerciseImportBtn").onclick=saveExerciseImports;$("closeImportResultsBtn").onclick=()=>importResultsDialog.close();$("profileBtn").onclick=()=>{if(currentUser){$("accountName").textContent=currentUser.displayName||localStorage.getItem("sw2_profile_name")||"Sweat & Stats User";$("accountEmail").textContent=currentUser.email||""}profileDialog.showModal()};$("signOutBtn").onclick=async()=>{if(confirm("Sign out of Sweat & Stats on this device?")){profileDialog.close();await uploadLocalToCloud();await auth.signOut()}};$("syncNowBtn").onclick=async()=>{await uploadLocalToCloud();alert("Cloud sync complete.")};$("copyHistoryBtn").onclick=()=>{let w=getHistory().find(x=>x.id===activeHistoryId);if(w)navigator.clipboard?.writeText(historySummary(w))};$("editHistoryBtn").onclick=()=>{let h=getHistory(),w=h.find(x=>x.id===activeHistoryId);if(!w)return;let n=prompt("Edit overall workout note",w.notes||"");if(n===null)return;w.notes=n;localStorage.setItem("sw2_history",JSON.stringify(h));queueCloudSync();openHistory(activeHistoryId);renderHistory()};$("deleteHistoryBtn").onclick=()=>{if(!confirm("Delete this saved workout?"))return;let h=getHistory().filter(x=>x.id!==activeHistoryId);localStorage.setItem("sw2_history",JSON.stringify(h));queueCloudSync();historyDetailDialog.close();renderHistory()};$("cancelExerciseBtn").onclick=()=>exerciseDialog.close();$("editPrimaryGroup").onchange=()=>syncTypes($("editPrimaryGroup"),$("editPrimaryType"));$("editSecondaryGroup").onchange=()=>syncTypes($("editSecondaryGroup"),$("editSecondaryType"),true);$("editEquipmentType").onchange=toggleOtherEquipment;$("importEditPrimaryGroup").onchange=()=>syncTypes($("importEditPrimaryGroup"),$("importEditPrimaryType"));$("importEditSecondaryGroup").onchange=()=>syncTypes($("importEditSecondaryGroup"),$("importEditSecondaryType"),true);$("importEditEquipmentType").onchange=toggleImportOtherEquipment;$("cancelImportCandidateEditBtn").onclick=()=>importCandidateEditDialog.close();$("resetLibraryBtn").onclick=()=>{if(confirm("Restore the approved Exercise Library v1.0? Custom exercises and edits will be removed.")){library=clone(BASE_LIBRARY);renderLibrary();persist()}};$("saveCurrentPlanBtn").onclick=savePlan;$("saveAsFavoriteBtn").onclick=savePlan;$("parsePlanBtn").onclick=()=>parsePlan($("planImport").value);$("randomizeBtn").onclick=showRandom;$("copyBtn").onclick=()=>{$("summaryText").value=buildSummary();summaryDialog.showModal();navigator.clipboard?.writeText($("summaryText").value)};$("copyDialogBtn").onclick=()=>navigator.clipboard.writeText($("summaryText").value);$("saveBtn").onclick=openFinishWorkout;$("cancelFinishBtn").onclick=()=>finishWorkoutDialog.close();$("confirmFinishBtn").onclick=saveWorkout;
 $("copyFinishBtn").onclick=copyFinishedWorkout;
 $("resetBtn").onclick=()=>{if(confirm("Reset today's workout?")){exercises=[];resetWorkoutState();persist();renderToday()}};
