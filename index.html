@@ -77,6 +77,10 @@ header { background:var(--bg); }
 .home-exercises { margin:0 0 10px; padding:0; list-style:none; }
 .home-exercises li { display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); font-size:.84rem; overflow-wrap:anywhere; }
 .home-exercise-status { color:var(--wine); flex-shrink:0; }
+.history-actions { margin-top:12px; }
+.history-edit-exercises { margin-top:12px; }
+.history-edit-exercises .field input { min-width:0; }
+.history-edit-exercises .set-row { grid-template-columns:30px minmax(0,1fr) minmax(0,1fr) 38px; }
 </style>
 </head>
 <body>
@@ -96,7 +100,7 @@ header { background:var(--bg); }
 </div>
 <div class="app hidden" id="mainApp">
 <header>
-  <h1>Sweat &amp; Stats <span class="badge">v2.4.0</span></h1>
+  <h1>Sweat &amp; Stats <span class="badge">v2.4.1</span></h1>
   <div class="muted small">Build, suggest, paste, or repeat a workout. Every rep counts.</div>
   <div class="cloud-status"><span id="cloudDot" class="cloud-dot"></span><span id="cloudStatus">Connecting…</span></div>
 </header>
@@ -176,7 +180,8 @@ header { background:var(--bg); }
 
 
 <section id="history" class="tab hidden">
-  <div class="row"><div><div class="section-title">Workout history</div><div class="muted small">Every completed workout is saved here.</div></div><button id="profileBtn" class="ghost">Profile</button></div>
+  <div class="row"><div><div class="section-title">Workout history</div><div class="muted small">Every completed workout is saved here.</div></div><div class="actions"><button id="copyAllHistoryBtn" class="primary">Copy All</button><button id="profileBtn" class="ghost">Profile</button></div></div>
+  <div id="historyCopyStatus" class="small success-text" role="status"></div>
   <div id="historyInsights" class="grid3" style="margin:10px 0"></div>
   <div id="historyList"></div>
 </section>
@@ -190,7 +195,39 @@ header { background:var(--bg); }
 </div>
 
 
-<dialog id="historyDetailDialog"><div class="modal"><div class="row"><h2 id="historyDetailTitle">Workout</h2><button onclick="historyDetailDialog.close()" class="ghost">Close</button></div><div id="historyDetailBody"></div><div class="actions" style="margin-top:12px"><button id="copyHistoryBtn" class="primary">Copy Summary</button><button id="editHistoryBtn" class="secondary">Edit Notes</button><button id="deleteHistoryBtn" class="danger">Delete</button></div></div></dialog>
+<dialog id="historyDetailDialog">
+  <div class="modal">
+    <div class="row"><h2 id="historyDetailTitle">Workout</h2><button onclick="historyDetailDialog.close()" class="ghost">Close</button></div>
+    <div id="historyDetailBody"></div>
+    <div class="actions history-actions">
+      <button id="copyHistoryBtn" class="primary">Copy Summary</button>
+      <button id="favoriteHistoryBtn" class="secondary">Save as Favorite</button>
+      <button id="loadHistoryBtn" class="secondary">Load into Today</button>
+      <button id="editHistoryBtn" class="ghost">Edit Workout</button>
+      <button id="deleteHistoryBtn" class="danger">Delete</button>
+    </div>
+    <div id="historyDetailStatus" class="small success-text" role="status"></div>
+  </div>
+</dialog>
+<dialog id="historyEditDialog" aria-labelledby="historyEditTitle">
+  <form id="historyEditForm" class="modal">
+    <h2 id="historyEditTitle">Edit Saved Workout</h2>
+    <div class="grid2">
+      <div class="field"><label for="historyEditStart">Start</label><input id="historyEditStart" type="datetime-local" step="1" required></div>
+      <div class="field"><label for="historyEditEnd">End</label><input id="historyEditEnd" type="datetime-local" step="1" required></div>
+    </div>
+    <div class="field history-actions"><label for="historyEditMood">How it felt</label><select id="historyEditMood"></select></div>
+    <div class="field history-actions"><label for="historyEditNotes">Overall notes</label><textarea id="historyEditNotes"></textarea></div>
+    <div id="historyEditExercises" class="history-edit-exercises"></div>
+    <div class="field"><label for="historyEditAddSelect">Exercise from Library</label><select id="historyEditAddSelect"></select></div>
+    <button id="historyEditAddExercise" type="button" class="ghost history-actions">Add Exercise</button>
+    <div id="historyEditError" class="small error-text" role="alert"></div>
+    <div class="actions history-actions">
+      <button id="cancelHistoryEdit" type="button" class="ghost">Cancel</button>
+      <button type="submit" class="primary">Save Changes</button>
+    </div>
+  </form>
+</dialog>
 <dialog id="exerciseHistoryDialog"><div class="modal"><div class="row"><h2 id="exerciseHistoryTitle">Exercise History</h2><button onclick="exerciseHistoryDialog.close()" class="ghost">Close</button></div><div id="exerciseHistoryBody"></div></div></dialog>
 <dialog id="profileDialog"><div class="modal"><h2>Account &amp; Cloud Data</h2><div class="account-row"><div><strong id="accountName">Sweat &amp; Stats User</strong><div id="accountEmail" class="muted small"></div></div><button id="signOutBtn" class="danger">Sign Out</button></div><div class="notice" style="margin-top:12px">Your workouts, library, plans, custom categories, and settings sync to your private Firebase account.</div><div class="actions"><button id="syncNowBtn" class="secondary">Sync Now</button><button onclick="profileDialog.close()" class="ghost">Close</button></div></div></dialog>
 
@@ -286,7 +323,7 @@ approved("Straight-Arm Pulldown (Cable)","Back","Lats","","","Pull","Cable Machi
 const NAME_MAP={"Vertical Knee Raises":"Vertical Knee Raise","Single-Leg Vertical Knee Raises":"Single-Leg Vertical Knee Raise","Rotary Torso":"Rotary Torso (Machine)","Back Extension":"Back Extension (Machine)","Leg Press":"Leg Press (Machine)","Hip Abductor":"Hip Abductor (Machine)","Hip Adductor":"Hip Adductor (Machine)","Calf Extension":"Calf Raise (Machine)","Cable Deadlift":"Deadlift (Cable)","Seated Cable Row":"Seated Row (Cable)","Spring Seated Row":"Seated Row (Machine)","Lat Pulldown":"Lat Pulldown (Machine)","Cable Face Pull":"Face Pull (Cable)","Chest Press":"Chest Press (Machine)","Triceps Press":"Triceps Press (Machine)","Cable Triceps Pushdown":"Triceps Pushdown (Cable)","Assisted Dips":"Assisted Dip (Machine)","Dumbbell Bicep Curls":"Bicep Curl (Dumbbell)","Dumbbell Hammer Curls":"Hammer Curl (Dumbbell)","Horizontal Hammer Curls":"Horizontal Hammer Curl (Dumbbell)","Dumbbell Shoulder Press":"Shoulder Press (Dumbbell)","Cable Bicep Curl":"Bicep Curl (Cable)","Straight-Arm Cable Pulldown":"Straight-Arm Pulldown (Cable)"};
 const clone=o=>JSON.parse(JSON.stringify(o)); const $=id=>document.getElementById(id);
 function baseByName(name){return BASE_LIBRARY.find(x=>x.name===name)}
-function migrateExercise(old){const mapped=NAME_MAP[old.name]||old.name;const base=library?.find(x=>x.name===mapped)||baseByName(mapped);if(!base)return null;return {...clone(base),sets:old.sets?.length?clone(old.sets):clone(base.sets),minutes:old.minutes??base.minutes,floors:old.floors??base.floors,done:!!old.done,effort:old.effort||"",note:old.note||""}}
+function migrateExercise(old){const mapped=NAME_MAP[old.name]||old.name;const base=library?.find(x=>x.name===mapped)||baseByName(mapped)||(old.kind&&old.primaryGroup?old:null);if(!base)return null;return {...clone(base),sets:old.sets?.length?clone(old.sets):clone(base.sets),minutes:old.minutes??base.minutes,floors:old.floors??base.floors,done:!!old.done,effort:old.effort||"",note:old.note||""}}
 function loadState(){let stored=JSON.parse(localStorage.getItem("sw2_library")||"null");if(stored?.[0]?.primaryGroup)library=stored;else library=clone(BASE_LIBRARY);let today=JSON.parse(localStorage.getItem("sw2_today")||"[]");exercises=today.map(migrateExercise).filter(Boolean);let rawPlans=JSON.parse(localStorage.getItem("sw2_plans")||"[]");plans=rawPlans.map(p=>({...p,exercises:(p.exercises||[]).map(migrateExercise).filter(Boolean)}));localStorage.setItem("sw2_schema_version",VERSION)}
 let library=[],exercises=[],plans=[],importCandidates=[];loadState();
 let manualWorkout=localStorage.getItem("sw2_manual_workout")==="true";
@@ -370,9 +407,16 @@ window.editImportCandidate=i=>{let c=importCandidates[i],d=c.data;$("importEditI
 $("importCandidateEditForm").onsubmit=e=>{e.preventDefault();let i=Number($("importEditIndex").value),c=importCandidates[i],d=c.data;let selectedType=$("importEditEquipmentType").value,newType=normalizeEquipmentTypeName($("importEditNewEquipmentType").value);if(selectedType==="Other"){if(!newType)return alert("Enter a new equipment type.");selectedType=findEquipmentType(newType)||newType}Object.assign(d,{name:$("importEditName").value.trim(),primaryGroup:$("importEditPrimaryGroup").value,primaryType:$("importEditPrimaryType").value,secondaryGroup:$("importEditSecondaryGroup").value,secondaryType:$("importEditSecondaryType").value,movement:$("importEditMovement").value,equipmentName:$("importEditEquipmentName").value.trim(),equipmentType:selectedType});refreshImportCandidate(c);c.saveCustomEquipment=true;c.saveCustomEquipmentType=$("importEditEquipmentType").value==="Other"&&$("importSaveNewEquipmentType").checked;importCandidateEditDialog.close();renderImportPreview()};
 function previewExerciseImport(){importCandidates=parseExerciseBlocks($("exerciseImportText").value);if(!importCandidates.length)return alert("No standard exercise blocks were recognized.");exerciseImportDialog.close();renderImportPreview();exerciseImportPreviewDialog.showModal()}
 function saveExerciseImports(){let imported=0,updated=0,skipped=0,invalid=0;for(let c of importCandidates){if(c.error){invalid++;continue}let d=clone(c.data);if(c.existing){if(c.action==="skip"){skipped++;continue}if(c.action==="replace"){d.id=c.existing.id;let idx=library.findIndex(x=>x.id===c.existing.id);library[idx]=d;updated++}else if(c.action==="copy"){d.id=crypto.randomUUID();d.name=`${d.name} Copy`;library.push(d);imported++}}else{library.push(d);imported++}rememberMuscle(d.primaryGroup,d.primaryType);if(d.secondaryGroup)rememberMuscle(d.secondaryGroup,d.secondaryType);if(c.saveCustomEquipmentType)rememberEquipmentType(d.equipmentType);rememberEquipmentName(d,c.saveCustomEquipment!==false)}refreshEquipmentTypeControls();persist();renderLibrary();exerciseImportPreviewDialog.close();$("importResultsBody").innerHTML=`<strong>Imported:</strong> ${imported}<br><strong>Updated:</strong> ${updated}<br><strong>Skipped:</strong> ${skipped}<br><strong>Invalid:</strong> ${invalid}`;importResultsDialog.showModal()}
-function renderPlans(){$("plansList").innerHTML=plans.length?"":"<div class='card muted'>No favorite plans saved yet.</div>";plans.forEach((p,i)=>{let d=document.createElement("div");d.className="card plan-item";d.innerHTML=`<div><div class="title">${p.name}</div><div class="muted small">${p.exercises.length} exercises</div></div><div class="actions"><button class="primary" onclick="loadPlan(${i})">Load</button><button class="danger" onclick="deletePlan(${i})">Delete</button></div>`;$("plansList").appendChild(d)})}function savePlan(){let name=prompt("Name this workout plan");if(!name)return;plans.push({name,exercises:exercises.map(e=>({...clone(e),done:false,effort:"",note:""}))});renderPlans();persist()}window.loadPlan=i=>{exercises=clone(plans[i].exercises);renderToday();persist();switchTab("today")};window.deletePlan=i=>{plans.splice(i,1);renderPlans();persist()};
+function renderPlans(){$("plansList").innerHTML=plans.length?"":"<div class='card muted'>No favorite plans saved yet.</div>";plans.forEach((p,i)=>{let d=document.createElement("div");d.className="card plan-item";d.innerHTML=`<div><div class="title">${escapeHistoryText(p.name)}</div><div class="muted small">${p.exercises.length} exercises</div></div><div class="actions"><button class="primary" onclick="loadPlan(${i})">Load</button><button class="danger" onclick="deletePlan(${i})">Delete</button></div>`;$("plansList").appendChild(d)})}function savePlan(source=exercises,suggestedName=""){
+  const name=prompt("Name this workout plan",suggestedName);
+  if(!name)return false;
+  plans.push({name,exercises:source.map(e=>({...clone(e),done:false,effort:"",note:""}))});
+  renderPlans();
+  persist();
+  return true;
+}window.loadPlan=i=>{exercises=clone(plans[i].exercises);renderToday();persist();switchTab("today")};window.deletePlan=i=>{plans.splice(i,1);renderPlans();persist()};
 function resetWorkoutState(){manualWorkout=false;running=false;start=null;elapsed=0;clearInterval(interval);$("workoutNotes").value="";tick()}
-function replaceWorkout(next){if(exercises.length&& !confirm("Replace the current workout?"))return false;exercises=next.map(x=>({...clone(x),done:false,effort:"",note:""}));resetWorkoutState();persist();renderToday();switchTab("today");return true}
+function replaceWorkout(next,hasDraft=exercises.length>0){if(hasDraft&& !confirm("Replace the current workout?"))return false;exercises=next.map(x=>({...clone(x),done:false,effort:"",note:""}));resetWorkoutState();persist();renderToday();switchTab("today");return true}
 function buildMyOwn(){
   exercises=[];
   resetWorkoutState();
@@ -398,13 +442,201 @@ async function copyFinishedWorkout(){
   }
 }
 function workoutTotals(){let completed=exercises.filter(x=>x.done),sets=0,volume=0;completed.forEach(ex=>{if(ex.kind==="strength")ex.sets.forEach(s=>{sets++;let r=Number(s.reps)||0,w=Number(s.weight)||0;volume+=r*w})});return {completed,sets,volume,duration:elapsedNow()}}
-function openFinishWorkout(){let t=workoutTotals();if(!t.completed.length)return alert("Mark at least one exercise complete before finishing the workout.");selectedMood="";$("finishCopyStatus").textContent="";$("finishWorkoutNotes").value=$("workoutNotes").value;$("finishStats").innerHTML=`<div class="summary-stat"><strong>${Math.round(t.duration/60000)}</strong><span class="small muted">Minutes</span></div><div class="summary-stat"><strong>${t.completed.length}</strong><span class="small muted">Exercises</span></div><div class="summary-stat"><strong>${t.sets}</strong><span class="small muted">Sets</span></div><div class="summary-stat"><strong>${[...new Set(t.completed.flatMap(x=>[x.primaryType,x.secondaryType].filter(Boolean)))].length}</strong><span class="small muted">Muscles</span></div>`;const moods=["Great","Good","Okay","Low Energy","Wanted to Leave"];$("moodButtons").innerHTML=moods.map((m,i)=>`<button class="mood-btn" data-mood="${m}">${["😄","🙂","😐","😓","😩"][i]}<br>${m}</button>`).join("");$("moodButtons").querySelectorAll("button").forEach(b=>b.onclick=()=>{selectedMood=b.dataset.mood;$("moodButtons").querySelectorAll("button").forEach(x=>x.classList.toggle("selected",x===b))});finishWorkoutDialog.showModal()}
+const WORKOUT_MOODS=["Great","Good","Okay","Low Energy","Wanted to Leave"];
+function openFinishWorkout(){let t=workoutTotals();if(!t.completed.length)return alert("Mark at least one exercise complete before finishing the workout.");selectedMood="";$("finishCopyStatus").textContent="";$("finishWorkoutNotes").value=$("workoutNotes").value;$("finishStats").innerHTML=`<div class="summary-stat"><strong>${Math.round(t.duration/60000)}</strong><span class="small muted">Minutes</span></div><div class="summary-stat"><strong>${t.completed.length}</strong><span class="small muted">Exercises</span></div><div class="summary-stat"><strong>${t.sets}</strong><span class="small muted">Sets</span></div><div class="summary-stat"><strong>${[...new Set(t.completed.flatMap(x=>[x.primaryType,x.secondaryType].filter(Boolean)))].length}</strong><span class="small muted">Muscles</span></div>`;$("moodButtons").innerHTML=WORKOUT_MOODS.map((m,i)=>`<button class="mood-btn" data-mood="${m}">${["😄","🙂","😐","😓","😩"][i]}<br>${m}</button>`).join("");$("moodButtons").querySelectorAll("button").forEach(b=>b.onclick=()=>{selectedMood=b.dataset.mood;$("moodButtons").querySelectorAll("button").forEach(x=>x.classList.toggle("selected",x===b))});finishWorkoutDialog.showModal()}
 function saveWorkout(){if(!selectedMood)return alert("Choose how the workout felt before saving.");let hist=JSON.parse(localStorage.getItem("sw2_history")||"[]"),t=workoutTotals(),notes=$("finishWorkoutNotes").value.trim();let endedAt=new Date(),startedAt=new Date(endedAt.getTime()-t.duration);hist.push({id:crypto.randomUUID(),date:endedAt.toISOString(),startTime:startedAt.toISOString(),endTime:endedAt.toISOString(),duration:t.duration,exercises:clone(t.completed),notes,mood:selectedMood,totalSets:t.sets,totalVolume:t.volume,muscles:[...new Set(t.completed.flatMap(x=>[x.primaryType,x.secondaryType].filter(Boolean)))],schemaVersion:VERSION});localStorage.setItem("sw2_history",JSON.stringify(hist));queueCloudSync();exercises=[];resetWorkoutState();finishWorkoutDialog.close();persist();renderToday();renderHistory();alert("Workout saved to History.")}
 
 function getHistory(){return JSON.parse(localStorage.getItem("sw2_history")||"[]")}
-function historySummary(w){let d=new Date(w.date),mins=Math.round((w.duration||0)/60000),lines=[`Workout — ${d.toLocaleDateString()}`,`${new Date(w.startTime||w.date).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}–${new Date(w.endTime||w.date).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})} (${mins} min)`,""];(w.exercises||[]).forEach(ex=>{if(ex.kind==="cardio")lines.push(`✔ ${ex.name}: ${ex.minutes||0} min${ex.floors!==""?`, ${ex.floors||0} floors`:""}`);else lines.push(`✔ ${ex.name}: `+(ex.sets||[]).map(formatSet).join(", "));if(ex.effort)lines.push(`  Effort: ${ex.effort}`);if(ex.note)lines.push(`  Note: ${ex.note}`)});if(w.notes)lines.push("",`Workout notes: ${w.notes}`);return lines.join("\n")}
-function renderHistory(){let h=getHistory().sort((a,b)=>new Date(b.date)-new Date(a.date)),total=h.reduce((n,w)=>n+(w.duration||0),0);$("historyInsights").innerHTML=`<div class="summary-stat"><strong>${h.length}</strong><span class="small muted">Workouts</span></div><div class="summary-stat"><strong>${Math.round(total/60000)}</strong><span class="small muted">Total Minutes</span></div><div class="summary-stat"><strong>${h.length?Math.round(total/h.length/60000):0}</strong><span class="small muted">Avg Minutes</span></div>`;$("historyList").innerHTML=h.length?"":"<div class='card empty'>No completed workouts yet.</div>";h.forEach(w=>{let d=document.createElement("div");d.className="card";let muscles=w.muscles||[...new Set((w.exercises||[]).flatMap(x=>[x.primaryType,x.secondaryType].filter(Boolean)))];d.innerHTML=`<div class="row"><div><div class="title">${new Date(w.date).toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'})}</div><div class="muted small">${Math.round((w.duration||0)/60000)} min · ${(w.exercises||[]).length} exercises · ${w.mood||'No mood'}</div><div class="chips">${muscles.slice(0,5).map(x=>`<span class="chip">${x}</span>`).join('')}</div></div><button class="primary" onclick="openHistory('${w.id}')">View</button></div>`;$("historyList").appendChild(d)})}
-let activeHistoryId=null;window.openHistory=id=>{let w=getHistory().find(x=>x.id===id);if(!w)return;activeHistoryId=id;$("historyDetailTitle").textContent=new Date(w.date).toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'});$("historyDetailBody").innerHTML=`<div class="grid3"><div class="summary-stat"><strong>${Math.round((w.duration||0)/60000)}</strong><span class="small muted">Minutes</span></div><div class="summary-stat"><strong>${(w.exercises||[]).length}</strong><span class="small muted">Exercises</span></div><div class="summary-stat"><strong>${w.totalSets||0}</strong><span class="small muted">Sets</span></div></div><div class="card" style="margin-top:10px"><strong>Mood:</strong> ${w.mood||'Not recorded'}<br><strong>Notes:</strong> ${w.notes||'None'}</div>`+(w.exercises||[]).map(ex=>`<div class="card"><div class="title">${ex.name}</div><div class="muted small">${setSummary(ex)}</div>${ex.effort?`<div>Effort: ${ex.effort}</div>`:''}${ex.note?`<div>Note: ${ex.note}</div>`:''}</div>`).join('');historyDetailDialog.showModal()}
+function sortedHistory(){return getHistory().sort((a,b)=>new Date(b.date)-new Date(a.date))}
+function historyDateLabel(workout){
+  return new Date(workout.date).toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"});
+}
+function escapeHistoryText(value){
+  const entities={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"};
+  return String(value??"").replace(/[&<>"']/g,char=>entities[char]);
+}
+function selectedHistoryWorkout(){
+  return getHistory().find(workout=>workout.id===activeHistoryId);
+}
+async function copyHistoryText(text,statusId,message){
+  $(statusId).textContent="";
+  try{
+    await navigator.clipboard.writeText(text);
+    $(statusId).textContent=message;
+  }catch{
+    $("summaryText").value=text;
+    summaryDialog.showModal();
+    $("summaryText").select();
+  }
+}
+function copyAllHistory(){
+  const groups=new Map();
+  for(const workout of sortedHistory()){
+    const day=historyDateLabel(workout);
+    if(!groups.has(day))groups.set(day,[]);
+    groups.get(day).push(historySummary(workout,false));
+  }
+  if(!groups.size)return;
+  const text=Array.from(groups,([day,workouts])=>[day,...workouts].join("\n\n")).join("\n\n──────────\n\n");
+  return copyHistoryText(text,"historyCopyStatus","Workout history copied.");
+}
+function reuseHistoryWorkout(asFavorite){
+  const workout=selectedHistoryWorkout();
+  if(!workout?.exercises?.length)return;
+  const next=workout.exercises.map(migrateExercise);
+  if(next.some(exercise=>!exercise))return alert("Some exercises in this older workout could not be matched to your library.");
+  if(asFavorite){
+    if(savePlan(next,`Workout — ${historyDateLabel(workout)}`))$("historyDetailStatus").textContent="Saved to Plans.";
+  }else if(replaceWorkout(next,manualWorkout||exercises.length>0||running||elapsed>0||Boolean($("workoutNotes").value.trim()))){
+    historyDetailDialog.close();
+  }
+}
+
+const HISTORY_EFFORTS=["Easy","Moderate","Hard","Struggle"];
+let historyEditDraft=null;
+function localDateTimeValue(date){
+  const local=new Date(date.getTime()-date.getTimezoneOffset()*60000);
+  return local.toISOString().slice(0,19);
+}
+function historyEditOptions(values,current,emptyLabel){
+  const choices=current&&!values.includes(current)?[...values,current]:values;
+  return `<option value="">${emptyLabel}</option>`+choices.map(value=>
+    `<option value="${escapeHistoryText(value)}" ${value===current?"selected":""}>${escapeHistoryText(value)}</option>`
+  ).join("");
+}
+function historyEditInput(label,key,value,type="number",step="1"){
+  const numberAttrs=type==="number"?`min="0" step="${step}"`:"";
+  return `<label class="field"><span class="small muted">${label}</span><input data-key="${key}" type="${type}" ${numberAttrs} value="${escapeHistoryText(value)}"></label>`;
+}
+function renderHistoryEditor(){
+  $("historyEditExercises").innerHTML=historyEditDraft.exercises.map((exercise,index)=>{
+    const details=exercise.kind==="cardio"
+      ? `<div class="grid2">${historyEditInput("Minutes","minutes",exercise.minutes,"number","any")}${historyEditInput("Floors","floors",exercise.floors)}</div>`
+      : `<div>${(exercise.sets||[]).map((set,setIndex)=>`
+        <div class="set-row" data-set="${setIndex}">
+          <div class="set-num">${setIndex+1}</div>
+          ${historyEditInput("Reps","reps",set.reps)}
+          ${historyEditInput("Weight (lb)","weight",set.weight,"number","any")}
+          <button type="button" class="icon danger" data-action="remove-set" aria-label="Remove set ${setIndex+1}">×</button>
+          <label class="field set-side"><span class="small muted">Side / Style</span>
+            <select data-key="style">${historyEditOptions(SET_STYLES,set.style,"Optional")}</select>
+          </label>
+        </div>`).join("")}</div>
+        <button type="button" class="ghost full" data-action="add-set">Add Set</button>`;
+    return `<section class="card" data-exercise="${index}">
+      <div class="row"><h3 class="title">${escapeHistoryText(exercise.name)}</h3>
+        <button type="button" class="danger" data-action="remove-exercise">Remove</button></div>
+      ${details}
+      <div class="grid2" style="margin-top:8px">
+        <label class="field"><span class="small muted">Effort</span>
+          <select data-key="effort">${historyEditOptions(HISTORY_EFFORTS,exercise.effort,"Optional")}</select>
+        </label>
+        ${historyEditInput("Exercise note","note",exercise.note,"text")}
+      </div>
+    </section>`;
+  }).join("");
+}
+function openHistoryEditor(){
+  const workout=selectedHistoryWorkout();
+  if(!workout)return;
+  const end=new Date(workout.endTime||workout.date);
+  const start=new Date(workout.startTime||end.getTime()-(workout.duration||0));
+  historyEditDraft={id:workout.id,exercises:clone(workout.exercises||[]),start,end};
+  $("historyEditStart").value=localDateTimeValue(start);
+  $("historyEditEnd").value=localDateTimeValue(end);
+  historyEditDraft.startValue=$("historyEditStart").value;
+  historyEditDraft.endValue=$("historyEditEnd").value;
+  $("historyEditMood").innerHTML=historyEditOptions(WORKOUT_MOODS,workout.mood,"Not recorded");
+  $("historyEditNotes").value=workout.notes||"";
+  $("historyEditError").textContent="";
+  $("historyEditAddSelect").replaceChildren(new Option("Choose an exercise",""));
+  for(const exercise of [...library].sort((a,b)=>a.name.localeCompare(b.name))){
+    $("historyEditAddSelect").add(new Option(exercise.name,exercise.id));
+  }
+  renderHistoryEditor();
+  historyEditDialog.showModal();
+}
+function saveHistoryEdit(event){
+  event.preventDefault();
+  const history=getHistory();
+  const index=history.findIndex(workout=>workout.id===historyEditDraft.id);
+  if(index<0){
+    $("historyEditError").textContent="This workout is no longer in History.";
+    return;
+  }
+  const old=history[index];
+  const {exercises:edited,start:oldStart,end:oldEnd}=historyEditDraft;
+  const startValue=$("historyEditStart").value;
+  const endValue=$("historyEditEnd").value;
+  const startChanged=startValue!==historyEditDraft.startValue;
+  const endChanged=endValue!==historyEditDraft.endValue;
+  const start=startChanged?new Date(startValue):oldStart;
+  const end=endChanged?new Date(endValue):oldEnd;
+  if(!(end>=start)){
+    $("historyEditError").textContent="Choose an end time on or after the start time.";
+    return;
+  }
+  if(!edited.length||edited.some(exercise=>exercise.kind!=="cardio"&&!exercise.sets?.length)){
+    $("historyEditError").textContent="Keep at least one exercise and at least one set per strength exercise.";
+    return;
+  }
+  const sets=edited.flatMap(exercise=>exercise.kind==="cardio"?[]:exercise.sets);
+  history[index]={
+    ...old,
+    ...(startChanged||endChanged?{startTime:start.toISOString(),endTime:end.toISOString(),date:end.toISOString(),duration:end-start}:{}),
+    mood:$("historyEditMood").value,notes:$("historyEditNotes").value.trim(),exercises:edited,
+    totalSets:sets.length,totalVolume:sets.reduce((sum,set)=>sum+(Number(set.reps)||0)*(Number(set.weight)||0),0),
+    muscles:[...new Set(edited.flatMap(exercise=>[exercise.primaryType,exercise.secondaryType]).filter(Boolean))]
+  };
+  localStorage.setItem("sw2_history",JSON.stringify(history));
+  queueCloudSync();
+  historyEditDialog.close();
+  renderHistory();
+  openHistory(old.id);
+  $("historyDetailStatus").textContent="Changes saved to History.";
+}
+$("historyEditExercises").oninput=event=>{
+  const field=event.target;
+  if(!field.dataset.key)return;
+  const exercise=historyEditDraft.exercises[field.closest("[data-exercise]").dataset.exercise];
+  const set=field.closest("[data-set]");
+  const entry=set?exercise.sets[set.dataset.set]:exercise;
+  entry[field.dataset.key]=field.value;
+};
+$("historyEditExercises").onclick=event=>{
+  const button=event.target.closest("button[data-action]");
+  if(!button)return;
+  const index=Number(button.closest("[data-exercise]").dataset.exercise);
+  const exercise=historyEditDraft.exercises[index];
+  if(button.dataset.action==="remove-exercise")historyEditDraft.exercises.splice(index,1);
+  if(button.dataset.action==="remove-set")exercise.sets.splice(Number(button.closest("[data-set]").dataset.set),1);
+  if(button.dataset.action==="add-set"){
+    exercise.sets??=[];
+    exercise.sets.push(clone(exercise.sets.at(-1)||{reps:10,weight:""}));
+  }
+  renderHistoryEditor();
+};
+$("historyEditAddExercise").onclick=()=>{
+  const exercise=library.find(entry=>entry.id===$("historyEditAddSelect").value);
+  if(!exercise)return;
+  historyEditDraft.exercises.push({...clone(exercise),done:true,effort:"",note:""});
+  $("historyEditAddSelect").value="";
+  renderHistoryEditor();
+};
+$("historyEditForm").onsubmit=saveHistoryEdit;
+$("cancelHistoryEdit").onclick=()=>historyEditDialog.close();
+$("copyAllHistoryBtn").onclick=copyAllHistory;
+$("copyHistoryBtn").onclick=()=>{
+  const workout=selectedHistoryWorkout();
+  if(workout)return copyHistoryText(historySummary(workout),"historyDetailStatus","Workout copied.");
+};
+$("favoriteHistoryBtn").onclick=()=>reuseHistoryWorkout(true);
+$("loadHistoryBtn").onclick=()=>reuseHistoryWorkout(false);
+$("editHistoryBtn").onclick=openHistoryEditor;
+function historySummary(w,includeDate=true){let d=new Date(w.date),mins=Math.round((w.duration||0)/60000),lines=[`Workout — ${d.toLocaleDateString()}`,`${new Date(w.startTime||w.date).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}–${new Date(w.endTime||w.date).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})} (${mins} min)`,""];(w.exercises||[]).forEach(ex=>{if(ex.kind==="cardio")lines.push(`✔ ${ex.name}: ${ex.minutes||0} min${ex.floors!==""?`, ${ex.floors||0} floors`:""}`);else lines.push(`✔ ${ex.name}: `+(ex.sets||[]).map(formatSet).join(", "));if(ex.effort)lines.push(`  Effort: ${ex.effort}`);if(ex.note)lines.push(`  Note: ${ex.note}`)});if(w.mood)lines.push("",`Mood: ${w.mood}`);if(w.notes)lines.push("",`Workout notes: ${w.notes}`);return (includeDate?lines:lines.slice(1)).join("\n")}
+function renderHistory(){let h=sortedHistory();$("copyAllHistoryBtn").disabled=!h.length;let total=h.reduce((n,w)=>n+(w.duration||0),0);$("historyInsights").innerHTML=`<div class="summary-stat"><strong>${h.length}</strong><span class="small muted">Workouts</span></div><div class="summary-stat"><strong>${Math.round(total/60000)}</strong><span class="small muted">Total Minutes</span></div><div class="summary-stat"><strong>${h.length?Math.round(total/h.length/60000):0}</strong><span class="small muted">Avg Minutes</span></div>`;$("historyList").innerHTML=h.length?"":"<div class='card empty'>No completed workouts yet.</div>";h.forEach(w=>{let d=document.createElement("div");d.className="card";let muscles=w.muscles||[...new Set((w.exercises||[]).flatMap(x=>[x.primaryType,x.secondaryType].filter(Boolean)))];d.innerHTML=`<div class="row"><div><div class="title">${new Date(w.date).toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'})}</div><div class="muted small">${Math.round((w.duration||0)/60000)} min · ${(w.exercises||[]).length} exercises · ${escapeHistoryText(w.mood||"No mood")}</div><div class="chips">${muscles.slice(0,5).map(x=>`<span class="chip">${escapeHistoryText(x)}</span>`).join('')}</div></div><button class="primary" onclick="openHistory('${w.id}')">View</button></div>`;$("historyList").appendChild(d)})}
+let activeHistoryId=null;
+window.openHistory=id=>{let w=getHistory().find(x=>x.id===id);if(!w)return;activeHistoryId=id;$("historyDetailStatus").textContent="";$("historyDetailTitle").textContent=historyDateLabel(w);$("historyDetailBody").innerHTML=`<div class="grid3"><div class="summary-stat"><strong>${Math.round((w.duration||0)/60000)}</strong><span class="small muted">Minutes</span></div><div class="summary-stat"><strong>${(w.exercises||[]).length}</strong><span class="small muted">Exercises</span></div><div class="summary-stat"><strong>${w.totalSets||0}</strong><span class="small muted">Sets</span></div></div><div class="card" style="margin-top:10px"><strong>Mood:</strong> ${escapeHistoryText(w.mood||'Not recorded')}<br><strong>Notes:</strong> ${escapeHistoryText(w.notes||'None')}</div>`+(w.exercises||[]).map(ex=>`<div class="card"><div class="title">${escapeHistoryText(ex.name)}</div><div class="muted small">${escapeHistoryText(setSummary(ex))}</div>${ex.effort?`<div>Effort: ${escapeHistoryText(ex.effort)}</div>`:''}${ex.note?`<div>Note: ${escapeHistoryText(ex.note)}</div>`:''}</div>`).join('');historyDetailDialog.showModal()}
 window.showExerciseHistory=id=>{let ex=library.find(x=>x.id===id);if(!ex)return;let rows=getHistory().flatMap(w=>(w.exercises||[]).filter(x=>x.name===ex.name).map(x=>({w,x}))).sort((a,b)=>new Date(b.w.date)-new Date(a.w.date));let weights=rows.flatMap(r=>(r.x.sets||[]).map(s=>Number(s.weight)||0));$("exerciseHistoryTitle").textContent=ex.name;$("exerciseHistoryBody").innerHTML=`<div class="grid3"><div class="summary-stat"><strong>${rows.length}</strong><span class="small muted">Times Performed</span></div><div class="summary-stat"><strong>${weights.length?Math.max(...weights):0}</strong><span class="small muted">Best Weight</span></div><div class="summary-stat"><strong>${rows[0]?new Date(rows[0].w.date).toLocaleDateString():'—'}</strong><span class="small muted">Last Performed</span></div></div>`+rows.slice(0,12).map(r=>`<div class="card"><strong>${new Date(r.w.date).toLocaleDateString()}</strong><div class="muted small">${setSummary(r.x)}</div>${r.x.effort?`<div>Effort: ${r.x.effort}</div>`:''}${r.x.note?`<div>Note: ${r.x.note}</div>`:''}</div>`).join('')+(rows.length?'':"<div class='empty'>No history for this exercise yet.</div>");exerciseHistoryDialog.showModal()}
 function rememberMuscle(group,type){if(!group||!type)return;if(!MUSCLE_TYPES[group]){MASTER_DATA.muscleGroups.push(group);MUSCLE_TYPES[group]=[]}if(!MUSCLE_TYPES[group].some(x=>x.toLowerCase()===type.toLowerCase()))MUSCLE_TYPES[group].push(type);localStorage.setItem('sw2_custom_muscles',JSON.stringify(MUSCLE_TYPES));queueCloudSync()}
 
@@ -500,7 +732,7 @@ function switchTab(id){
 }
 $("homeWorkoutBtn").onclick=()=>switchTab("today");
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!$("home").classList.contains("hidden"))updateHomeTip()});
-document.querySelectorAll(".tabBtn").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));$("buildOwnBtn").onclick=buildMyOwn;$("suggestWorkoutBtn").onclick=()=>switchTab("random");$("pasteWorkoutBtn").onclick=openPasteWorkout;$("repeatWorkoutBtn").onclick=repeatPreviousWorkout;$("changeWorkoutBtn").onclick=()=>{if(confirm("Clear this workout and choose another way to start?")){exercises=[];resetWorkoutState();persist();renderToday()}};$("cancelPasteBtn").onclick=()=>pasteWorkoutDialog.close();$("loadPasteBtn").onclick=()=>parsePlan($("quickPasteInput").value);$("startBtn").onclick=startTimer;$("pauseBtn").onclick=pauseTimer;$("finishBtn").onclick=finishTimer;$("addFromLibraryBtn").onclick=()=>{fillAddSelect();addDialog.showModal()};$("confirmAddBtn").onclick=()=>{addNamed($("addSelect").value);addDialog.close()};$("librarySearch").oninput=renderLibrary;$("groupFilter").onchange=renderLibrary;$("equipmentFilter").onchange=renderLibrary;$("librarySort").onchange=renderLibrary;$("quickAddBtn").onclick=()=>openExercise();$("importExercisesBtn").onclick=()=>{$("exerciseImportText").value="";exerciseImportDialog.showModal()};$("cancelExerciseImportBtn").onclick=()=>exerciseImportDialog.close();$("previewExerciseImportBtn").onclick=previewExerciseImport;$("backExerciseImportBtn").onclick=()=>{exerciseImportPreviewDialog.close();exerciseImportDialog.showModal()};$("saveExerciseImportBtn").onclick=saveExerciseImports;$("closeImportResultsBtn").onclick=()=>importResultsDialog.close();$("profileBtn").onclick=()=>{if(currentUser){$("accountName").textContent=currentUser.displayName||localStorage.getItem("sw2_profile_name")||"Sweat & Stats User";$("accountEmail").textContent=currentUser.email||""}profileDialog.showModal()};$("signOutBtn").onclick=async()=>{if(confirm("Sign out of Sweat & Stats on this device?")){profileDialog.close();await uploadLocalToCloud();await auth.signOut()}};$("syncNowBtn").onclick=async()=>{await uploadLocalToCloud();alert("Cloud sync complete.")};$("copyHistoryBtn").onclick=()=>{let w=getHistory().find(x=>x.id===activeHistoryId);if(w)navigator.clipboard?.writeText(historySummary(w))};$("editHistoryBtn").onclick=()=>{let h=getHistory(),w=h.find(x=>x.id===activeHistoryId);if(!w)return;let n=prompt("Edit overall workout note",w.notes||"");if(n===null)return;w.notes=n;localStorage.setItem("sw2_history",JSON.stringify(h));queueCloudSync();openHistory(activeHistoryId);renderHistory()};$("deleteHistoryBtn").onclick=()=>{if(!confirm("Delete this saved workout?"))return;let h=getHistory().filter(x=>x.id!==activeHistoryId);localStorage.setItem("sw2_history",JSON.stringify(h));queueCloudSync();historyDetailDialog.close();renderHistory()};$("cancelExerciseBtn").onclick=()=>exerciseDialog.close();$("editPrimaryGroup").onchange=()=>syncTypes($("editPrimaryGroup"),$("editPrimaryType"));$("editSecondaryGroup").onchange=()=>syncTypes($("editSecondaryGroup"),$("editSecondaryType"),true);$("editEquipmentType").onchange=toggleOtherEquipment;$("importEditPrimaryGroup").onchange=()=>syncTypes($("importEditPrimaryGroup"),$("importEditPrimaryType"));$("importEditSecondaryGroup").onchange=()=>syncTypes($("importEditSecondaryGroup"),$("importEditSecondaryType"),true);$("importEditEquipmentType").onchange=toggleImportOtherEquipment;$("cancelImportCandidateEditBtn").onclick=()=>importCandidateEditDialog.close();$("resetLibraryBtn").onclick=()=>{if(confirm("Restore the approved Exercise Library v1.0? Custom exercises and edits will be removed.")){library=clone(BASE_LIBRARY);renderLibrary();persist()}};$("saveCurrentPlanBtn").onclick=savePlan;$("saveAsFavoriteBtn").onclick=savePlan;$("parsePlanBtn").onclick=()=>parsePlan($("planImport").value);$("randomizeBtn").onclick=showRandom;$("copyBtn").onclick=()=>{$("summaryText").value=buildSummary();summaryDialog.showModal();navigator.clipboard?.writeText($("summaryText").value)};$("copyDialogBtn").onclick=()=>navigator.clipboard.writeText($("summaryText").value);$("saveBtn").onclick=openFinishWorkout;$("cancelFinishBtn").onclick=()=>finishWorkoutDialog.close();$("confirmFinishBtn").onclick=saveWorkout;
+document.querySelectorAll(".tabBtn").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));$("buildOwnBtn").onclick=buildMyOwn;$("suggestWorkoutBtn").onclick=()=>switchTab("random");$("pasteWorkoutBtn").onclick=openPasteWorkout;$("repeatWorkoutBtn").onclick=repeatPreviousWorkout;$("changeWorkoutBtn").onclick=()=>{if(confirm("Clear this workout and choose another way to start?")){exercises=[];resetWorkoutState();persist();renderToday()}};$("cancelPasteBtn").onclick=()=>pasteWorkoutDialog.close();$("loadPasteBtn").onclick=()=>parsePlan($("quickPasteInput").value);$("startBtn").onclick=startTimer;$("pauseBtn").onclick=pauseTimer;$("finishBtn").onclick=finishTimer;$("addFromLibraryBtn").onclick=()=>{fillAddSelect();addDialog.showModal()};$("confirmAddBtn").onclick=()=>{addNamed($("addSelect").value);addDialog.close()};$("librarySearch").oninput=renderLibrary;$("groupFilter").onchange=renderLibrary;$("equipmentFilter").onchange=renderLibrary;$("librarySort").onchange=renderLibrary;$("quickAddBtn").onclick=()=>openExercise();$("importExercisesBtn").onclick=()=>{$("exerciseImportText").value="";exerciseImportDialog.showModal()};$("cancelExerciseImportBtn").onclick=()=>exerciseImportDialog.close();$("previewExerciseImportBtn").onclick=previewExerciseImport;$("backExerciseImportBtn").onclick=()=>{exerciseImportPreviewDialog.close();exerciseImportDialog.showModal()};$("saveExerciseImportBtn").onclick=saveExerciseImports;$("closeImportResultsBtn").onclick=()=>importResultsDialog.close();$("profileBtn").onclick=()=>{if(currentUser){$("accountName").textContent=currentUser.displayName||localStorage.getItem("sw2_profile_name")||"Sweat & Stats User";$("accountEmail").textContent=currentUser.email||""}profileDialog.showModal()};$("signOutBtn").onclick=async()=>{if(confirm("Sign out of Sweat & Stats on this device?")){profileDialog.close();await uploadLocalToCloud();await auth.signOut()}};$("syncNowBtn").onclick=async()=>{await uploadLocalToCloud();alert("Cloud sync complete.")};$("deleteHistoryBtn").onclick=()=>{if(!confirm("Delete this saved workout?"))return;let h=getHistory().filter(x=>x.id!==activeHistoryId);localStorage.setItem("sw2_history",JSON.stringify(h));queueCloudSync();historyDetailDialog.close();renderHistory()};$("cancelExerciseBtn").onclick=()=>exerciseDialog.close();$("editPrimaryGroup").onchange=()=>syncTypes($("editPrimaryGroup"),$("editPrimaryType"));$("editSecondaryGroup").onchange=()=>syncTypes($("editSecondaryGroup"),$("editSecondaryType"),true);$("editEquipmentType").onchange=toggleOtherEquipment;$("importEditPrimaryGroup").onchange=()=>syncTypes($("importEditPrimaryGroup"),$("importEditPrimaryType"));$("importEditSecondaryGroup").onchange=()=>syncTypes($("importEditSecondaryGroup"),$("importEditSecondaryType"),true);$("importEditEquipmentType").onchange=toggleImportOtherEquipment;$("cancelImportCandidateEditBtn").onclick=()=>importCandidateEditDialog.close();$("resetLibraryBtn").onclick=()=>{if(confirm("Restore the approved Exercise Library v1.0? Custom exercises and edits will be removed.")){library=clone(BASE_LIBRARY);renderLibrary();persist()}};$("saveCurrentPlanBtn").onclick=() => savePlan();$("saveAsFavoriteBtn").onclick=() => savePlan();$("parsePlanBtn").onclick=()=>parsePlan($("planImport").value);$("randomizeBtn").onclick=showRandom;$("copyBtn").onclick=()=>{$("summaryText").value=buildSummary();summaryDialog.showModal();navigator.clipboard?.writeText($("summaryText").value)};$("copyDialogBtn").onclick=()=>navigator.clipboard.writeText($("summaryText").value);$("saveBtn").onclick=openFinishWorkout;$("cancelFinishBtn").onclick=()=>finishWorkoutDialog.close();$("confirmFinishBtn").onclick=saveWorkout;
 $("copyFinishBtn").onclick=copyFinishedWorkout;
 $("resetBtn").onclick=()=>{if(confirm("Reset today's workout?")){exercises=[];resetWorkoutState();persist();renderToday()}};
 $("showSignInBtn").onclick=()=>showAuthMode("signin");$("showCreateBtn").onclick=()=>showAuthMode("create");$("authSubmitBtn").onclick=submitAuth;$("forgotPasswordBtn").onclick=resetPassword;$("authPassword").onkeydown=e=>{if(e.key==="Enter")submitAuth()};
