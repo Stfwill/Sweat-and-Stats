@@ -233,11 +233,10 @@ function activeCalories(minutes, kg, met) {
 function activityMet(exercise) {
   if (exercise.kind === "cardio") {
     if (/stair|stepmill/i.test(exercise.name)) return 9.3;
-    if (/elliptical/i.test(exercise.name)) return exercise.effort === "Hard" ? 9 : 5;
+    if (/elliptical/i.test(exercise.name)) return 5;
     if (/walk/i.test(exercise.name)) return 3.8;
     return 5;
   }
-  if (exercise.effort === "Hard" || exercise.effort === "Struggle") return 6;
   return 3.5;
 }
 
